@@ -23,11 +23,17 @@ def read_ping():
 
 @app.route('/invocations', methods=["POST"])
 def invoke():
-    data = request.get_json()
-    item_desc = data["itemdesc"]
+    data = request.json
+    app.logger.debug(f"data: {data}")
+    app.logger.debug(f"request.mimetype: {request.mimetype}")
+    descriptions = [record["itemdesc"] for record in data["instances"]]
+    results = [
+        {"description": f"auto-generated-desc-for-{desc}"}
+        for desc in descriptions
+    ]
     return flask.Response(
-        json.dumps({"category": f"predicted {item_desc}"}),
-        mimetype='application/jsonlines'
+        json.dumps(results),
+        mimetype='application/json'
     )
 
 
