@@ -1,4 +1,3 @@
-import json
 import logging
 import random
 from typing import List
@@ -25,25 +24,22 @@ def read_ping():
 
 @app.route('/invocations', methods=["POST"])
 def invoke():
-    records = request.json
+    records = request.data.decode('utf-8')
     app.logger.debug(f"data: {records}")
     app.logger.debug(f"request.mimetype: {request.mimetype}")
-    record_features = [record["features"] for record in records]
+    record_features = [record.split(",")[0] for record in records.split("\n")]
+    response = [
+        f"{_get_prediction(itemdesc)},{random.random()}"
+        for itemdesc in record_features
+    ]
     return flask.Response(
-        json.dumps([
-            {
-                "predictions": _get_prediction(features),
-                "probabilities": random.random()
-            }
-            for features in record_features
-        ]),
-        mimetype='application/json'
+        "\n".join(response),
+        mimetype='text/csv'
     )
 
 
-def _get_prediction(features: List[str]) -> str:
-    item_description = features[0]
-    return f"auto-generated-description-for-{item_description}"
+def _get_prediction(itemdesc: List[str]) -> str:
+    return f"auto-generated-description-for-{itemdesc}"
 
 
 if __name__ == '__main__':
