@@ -1,7 +1,7 @@
 import json
 import logging
 import random
-from typing import List
+from typing import List, Dict, Union
 
 import flask
 from flask import request
@@ -25,25 +25,27 @@ def read_ping():
 
 @app.route('/invocations', methods=["POST"])
 def invoke():
-    records = request.json
-    app.logger.debug(f"data: {records}")
+    record = request.json
+    app.logger.debug(f"data: {record}")
     app.logger.debug(f"request.mimetype: {request.mimetype}")
-    record_features = [record["features"] for record in records]
-    return flask.Response(
-        json.dumps([
-            {
-                "predictions": _get_prediction(features),
-                "probabilities": random.random()
-            }
-            for features in record_features
-        ]),
-        mimetype='application/json'
-    )
+    itemdesc = record["features"][0]
+    app.logger.debug(f"Calling with: {itemdesc}")
+    result = json.dumps({
+        "itemdesc": itemdesc,
+        "predictions": _get_prediction(itemdesc),
+    })
+    app.logger.debug(f"Result: {result}")
+    return flask.Response(result, mimetype='application/jsonlines')
 
 
-def _get_prediction(features: List[str]) -> str:
-    item_description = features[0]
-    return f"auto-generated-description-for-{item_description}"
+def _get_prediction(item_description: str) -> List[Dict[str, Union[str, int]]]:
+    return [
+        {
+            f"prediction-{i}": f"auto-generated-description-for-{item_description}-{i}",
+            f"probability-{i}": random.random(),
+        }
+        for i in range(3)
+    ]
 
 
 if __name__ == '__main__':
