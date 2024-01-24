@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION="application-jsonlines-single-items"
+VERSION="inference-toolkit"
 
 docker build -t nlp-jsonlines .
 docker tag nlp-jsonlines:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/sagemaker-studio-d-ebafjgrwlbqa:$VERSION
