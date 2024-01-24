@@ -19,9 +19,11 @@ def handle(data, context):
     logging.info(f"data: {data}")
 
     features = data["features"]
-    return [
+    results = [
         {
             "predictions": _get_prediction(features),
             "probabilities": random.random()
         }
     ]
+    logging.info(f"results: {json.dumps(results)}")
+    return results
